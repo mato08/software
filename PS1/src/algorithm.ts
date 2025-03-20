@@ -19,8 +19,18 @@ import { Flashcard, AnswerDifficulty, BucketMap } from "./flashcards";
  * @spec.requires buckets is a valid representation of flashcard buckets.
  */
 export function toBucketSets(buckets: BucketMap): Array<Set<Flashcard>> {
-  // TODO: Implement this function
-  throw new Error("Implement me!");
+  if (buckets.size === 0) {
+    return [];
+  }
+
+
+  let bucketsArray: Array<Set<Flashcard>> = [];
+
+  for (let i = 0; i < buckets.size; i++) {
+    bucketsArray.push(buckets.get(i) || new Set());
+  }
+  return bucketsArray;
+;
 }
 
 /**
@@ -34,8 +44,36 @@ export function toBucketSets(buckets: BucketMap): Array<Set<Flashcard>> {
 export function getBucketRange(
   buckets: Array<Set<Flashcard>>
 ): { minBucket: number; maxBucket: number } | undefined {
-  // TODO: Implement this function
-  throw new Error("Implement me!");
+
+  if (buckets.length === 0) {
+    return undefined;
+  }
+
+  let minBucket = undefined;
+  let maxBucket = 0;
+
+
+  for (let i = 0; i < buckets.length; i++) {
+    const bucket = buckets[i];
+    if (bucket && bucket.size > 0) {
+      minBucket= i;
+      break;
+    }
+  }
+
+  if (minBucket === undefined) {
+    return undefined;
+  }
+  
+
+  for (let i = buckets.length - 1; i >= 0; i--) {
+    const bucket=buckets[i]
+    if (bucket && bucket.size > 0) {
+      maxBucket = i;
+      break;
+    }
+  }
+  return { minBucket, maxBucket };
 }
 
 /**
@@ -51,8 +89,24 @@ export function practice(
   buckets: Array<Set<Flashcard>>,
   day: number
 ): Set<Flashcard> {
-  // TODO: Implement this function
-  throw new Error("Implement me!");
+  const arr= new Set<Flashcard>();
+  for(let i = 0; i < buckets.length; i++){
+    const bucket = buckets[i]
+
+
+    if (bucket && bucket.size === 0) {
+      continue;
+    }
+
+
+    if(day %Math.pow(2,i) === 0){
+      bucket?.forEach(Flashcard=>{
+        arr.add(Flashcard)
+      });
+        
+    }
+  }
+  return arr;
 }
 
 /**
@@ -69,8 +123,37 @@ export function update(
   card: Flashcard,
   difficulty: AnswerDifficulty
 ): BucketMap {
-  // TODO: Implement this function
-  throw new Error("Implement me!");
+  let currentBucket: number | null = null;
+
+
+  for (const [bucketNumber, bucket] of buckets.entries()) {
+    if (bucket.has(card)) {
+      currentBucket = bucketNumber;
+      bucket.delete(card);
+      break;
+    }
+  }
+
+  if (currentBucket === null) {
+    return buckets;
+  }
+
+  let newBucket = currentBucket;
+
+  if (difficulty === AnswerDifficulty.Wrong) {
+    newBucket = 0;
+  } else if (difficulty === AnswerDifficulty.Easy) {
+    newBucket = currentBucket + 1;
+  } else if (difficulty === AnswerDifficulty.Hard && currentBucket > 0) {
+    newBucket = currentBucket - 1;
+  }
+
+  if (!buckets.has(newBucket)) {
+    buckets.set(newBucket, new Set());
+  }
+  
+  buckets.get(newBucket)!.add(card);
+  return buckets;
 }
 
 /**
