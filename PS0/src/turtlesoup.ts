@@ -17,7 +17,7 @@ export function drawSquare(turtle: Turtle, sideLength: number): void {
   turtle.forward(sideLength);
   turtle.turn(90);
   turtle.forward(sideLength);
-  turtle.turn(400);
+  turtle.turn(90);
 }
 
 /**

@@ -164,8 +164,21 @@ export function update(
  * @spec.requires card is a valid Flashcard.
  */
 export function getHint(card: Flashcard): string {
-  // TODO: Implement this function (and strengthen the spec!)
-  throw new Error("Implement me!");
+  if (card.hint.length===0){
+    return card.front[0]!;
+  }
+  else{
+    return card.hint;
+  }
+
+  
+}
+type computeProgressType = {
+  minBucket: number;
+  maxBucket: number;
+  easyCount: number;
+  hardCount: number;
+  wrongCount: number;
 }
 
 /**
@@ -173,11 +186,50 @@ export function getHint(card: Flashcard): string {
  *
  * @param buckets representation of learning buckets.
  * @param history representation of user's answer history.
- * @returns statistics about learning progress.
- * @spec.requires [SPEC TO BE DEFINED]
+ * @returns statistics about learning progress stired as type conputeProgressType.
+ * - If `buckets` or `history` are empty, return default values with an appropriate message.
  */
 export function computeProgress(buckets: any, history: any): any {
   // Replace 'any' with appropriate types
   // TODO: Implement this function (and define the spec!)
-  throw new Error("Implement me!");
+
+  const result: computeProgressType = {
+    minBucket: 0,
+    maxBucket: 0,
+    easyCount: 0,
+    hardCount: 0,
+    wrongCount: 0,
+  }
+
+
+  if (buckets.size === 0 || Object.keys(history).length === 0) {
+    if (buckets.size > 0) {
+      const bucketKeys = Array.from(buckets.keys()) as number[]; 
+      result.minBucket = Math.min(...bucketKeys);
+      result.maxBucket = Math.max(...bucketKeys);
+    }
+    return result;
+  }
+
+  for (const answers of Object.values(history) as AnswerDifficulty[][]) {
+    for (const answer of answers) {
+      if (answer === AnswerDifficulty.Wrong) {
+        result.wrongCount++;
+      } else if (answer === AnswerDifficulty.Easy) {
+        result.easyCount++;
+      } else if (answer === AnswerDifficulty.Hard) {
+        result.hardCount++;
+      }
+    }
+  }
+
+  const bucketKeys = Array.from(buckets.keys()) as number[]; 
+  result.minBucket = Math.min(...bucketKeys);
+  result.maxBucket = Math.max(...bucketKeys);
+
+
+  return result;
 }
+  
+
+
