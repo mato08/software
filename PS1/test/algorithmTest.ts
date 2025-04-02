@@ -289,10 +289,14 @@ describe("update()", () => {
  * TODO: Describe your testing strategy for getHint() here.
  */
 describe("getHint()", () => {
-  it("Example test case - replace with your own tests", () => {
-    assert.fail(
-      "Replace this test case with your own tests based on your testing strategy"
-    );
+  it("test case when hint is not empty", () => {
+    const card = new Flashcard("Q6", "A6", "it is a hint", ["tag6"]);
+    assert.strictEqual(getHint(card), "it is a hint");
+  });
+
+  it("test case when hint is empty-it should show first word of what is written in back", () => {
+    const card = new Flashcard("Q6", "A6", "", ["tag6"]);
+    assert.strictEqual(getHint(card), "Q");
   });
 });
 
@@ -301,10 +305,61 @@ describe("getHint()", () => {
  *
  * TODO: Describe your testing strategy for computeProgress() here.
  */
-describe("computeProgress()", () => {
-  it("Example test case - replace with your own tests", () => {
-    assert.fail(
-      "Replace this test case with your own tests based on your testing strategy"
-    );
-  });
+describe("computeProgress()", () => {  
+  it("returns default values when buckets and history are empty", () => {  
+    const buckets: BucketMap = new Map();  
+    const history: Record<string, AnswerDifficulty[]> = {};  
+
+    const result = computeProgress(buckets, history);
+    assert.deepStrictEqual(result, {  
+      minBucket: 0,  
+      maxBucket: 0,  
+      easyCount: 0,  
+      hardCount: 0,  
+      wrongCount: 0,  
+    });  
+  });  
+
+  it("calculates correct bucket range and difficulty counts", () => {  
+    const card1 = new Flashcard("Q1", "A1", "", []);  
+    const card2 = new Flashcard("Q2", "A2", "", []);  
+    const card3 = new Flashcard("Q3", "A3", "", []);  
+
+    const buckets: BucketMap = new Map([  
+      [0, new Set([card1])],  
+      [2, new Set([card2])],  
+      [3, new Set([card3])],  
+    ]);  
+
+    const history: Record<string, AnswerDifficulty[]> = {  
+      Q1: [AnswerDifficulty.Wrong],  
+      Q2: [AnswerDifficulty.Hard],  
+      Q3: [AnswerDifficulty.Easy],  
+    };  
+
+    const result = computeProgress(buckets, history);
+    assert.deepStrictEqual(result, {  
+      minBucket: 0,  
+      maxBucket: 3,  
+      easyCount: 1,  
+      hardCount: 1,  
+      wrongCount: 1,  
+    });  
+  });  
+
+  it("handles missing cards in history", () => {  
+    const card1 = new Flashcard("Q1", "A1", "", []);  
+
+    const buckets: BucketMap = new Map([[1, new Set([card1])]]);  
+    const history: Record<string, AnswerDifficulty[]> = {};  
+
+    const result = computeProgress(buckets, history);
+    assert.deepStrictEqual(result, {  
+      minBucket: 1,  
+      maxBucket: 1,  
+      easyCount: 0,  
+      hardCount: 0,  
+      wrongCount: 0,  
+    });  
+  });  
 });
